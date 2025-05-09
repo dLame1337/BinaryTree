@@ -12,7 +12,6 @@
 - `remove` – removes a node by key  
 - `clear` – clears the entire tree  
 - `find` – finds a value by key and returns a pointer to it  
-- `inOrder` – traverses the tree in left-root-right order (ascending key order)
 
 ## Tree Traversals
 
