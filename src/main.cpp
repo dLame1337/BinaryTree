@@ -24,6 +24,50 @@ class BinaryTree
 public:
     BinaryTree() = default;
 
+    BinaryTree(const BinaryTree& other)
+    {
+        if (this != &other)
+        {
+            m_size = other.m_size;
+            m_root = copyTree(other.m_root);
+        }
+    }
+
+    BinaryTree(BinaryTree&& other)
+    {
+        if (this != &other)
+        {
+            m_root = other.m_root;
+            m_size = other.m_size;
+            other.m_root = nullptr;
+            other.m_size = 0;
+        }
+    }
+
+    BinaryTree& operator=(const BinaryTree& other)
+    {
+        if (this != &other)
+        {
+            clear();
+            m_size = other.m_size;
+            m_root = copyTree(other.m_root);
+        }
+        return *this;
+    }
+
+    BinaryTree& operator=(BinaryTree&& other)
+    {
+        if (this != &other)
+        {
+            m_size = other.m_size;
+            m_root = other.m_root;
+
+            other.m_size = 0;
+            other.m_root = nullptr;
+        }
+        return *this;
+    }
+
     BinaryTree(std::initializer_list<std::pair<int, int>> list)
     {
         for(const auto& [key, value] : list)
@@ -44,13 +88,13 @@ public:
                 std::cout << "Value: " << node->value << std::endl;
             };
             std::cout << "\n--- INORDER ---" << std::endl;
-            inorder(m_root, callback);
+            inOrder(m_root, callback);
             std::cout << "\n--- PREORDER ---" << std::endl;
-            preorder(m_root, callback);
+            preOrder(m_root, callback);
             std::cout << "\n--- POSTORDER ---" << std::endl;
-            postorder(m_root, callback);
+            postOrder(m_root, callback);
             std::cout << "\n--- LEVELORDER ---" << std::endl;
-            levelorders(m_root, callback);
+            levelOrder(m_root, callback);
         }
     }
 
@@ -93,79 +137,63 @@ public:
         if (!(*node))
             return; // didnt find
 
-        remove(node);
+            remove(node);
 
         --m_size;
     }
 
-    Node** findNode(int key)
+    int* find(int key)
     {
-        Node** ref = &m_root;
-        Node* curr = m_root;
-
-        while (curr != nullptr)
-        {
-            if (curr->key > key)
-            {
-                ref = &curr->left;
-                curr = curr->left;
-                continue;
-            }
-            else if (curr->key < key)
-            {
-                ref = &curr->right;
-                curr = curr->right;
-                continue;
-            }
-            break;
-        }
-
-        return ref;
+        Node** node = findNode(key);
+        if (!(*node))
+            return nullptr; // didnt find
+            else
+                return &(*node)->value;
     }
 
     void clear()
     {
         if (m_root != nullptr)
-            postorder(m_root, [] (Node* node) { delete node; });
+            postOrder(m_root, [] (Node* node) { delete node; });
 
         m_root = nullptr;
         m_size = 0;
     }
 
-    void inorder(Node* node, void(*callback)(Node*))
+    void inOrder(Node* node, void(*callback)(Node*))
     {
         if (node->left != nullptr)
-            inorder(node->left, callback);
+            inOrder(node->left, callback);
 
         callback(node);
 
         if (node->right != nullptr)
-            inorder(node->right, callback);
+            inOrder(node->right, callback);
     }
 
-    void preorder(Node* node, void(*callback)(Node*))
+    void preOrder(Node* node, void(*callback)(Node*))
     {
         callback(node);
 
         if (node->left != nullptr)
-            preorder(node->left, callback);
+            preOrder(node->left, callback);
 
         if (node->right != nullptr)
-            preorder(node->right, callback);
+            preOrder(node->right, callback);
     }
 
-    void postorder(Node* node, void(*callback)(Node*))
+    void postOrder(Node* node, void(*callback)(Node*))
     {
         if (node->left != nullptr)
-            postorder(node->left, callback);
+            postOrder(node->left, callback);
 
         if (node->right != nullptr)
-            postorder(node->right, callback);
+            postOrder(node->right, callback);
 
         callback(node);
     }
 
-    void levelorders(Node* node, void(*callback)(Node*))
+    void levelOrder(Node* node, void(*callback)(Node*))
     {
         std::queue<Node *> current_level;
         current_level.push(node);
@@ -187,6 +215,16 @@ public:
     }
 
 private:
+
+    Node* copyTree(const Node* root) {
+        if (!root) return nullptr;
+
+        Node* new_node = new Node(root->key, root->value);
+        new_node->left = copyTree(root->left);
+        new_node->right = copyTree(root->right);
+        return new_node;
+    }
+
     Node* insert(Node* node, int key, int value)
     {
         if (node->key > key)
@@ -239,6 +277,31 @@ private:
         min_right->left = left->right;
         left->right = right;
         *node = left;
+    }
+
+    Node** findNode(int key)
+    {
+        Node** ref = &m_root;
+        Node* curr = m_root;
+
+        while (curr != nullptr)
+        {
+            if (curr->key > key)
+            {
+                ref = &curr->left;
+                curr = curr->left;
+                continue;
+            }
+            else if (curr->key < key)
+            {
+                ref = &curr->right;
+                curr = curr->right;
+                continue;
+            }
+            break;
+        }
+
+        return ref;
     }
 
     Node* getMinNode(Node* node)
