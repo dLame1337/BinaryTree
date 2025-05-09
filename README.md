@@ -24,3 +24,30 @@ The tree supports 4 types of traversal with a user-defined callback:
 - **Post-order**: left → right → root  
 
 - **Level-order**: level by level from top to bottom, left to right  
+
+
+## Quick Example
+
+```cpp
+BinaryTree tree({
+    {8,  100},
+    {3,  200},
+    {10, 300},
+    {1,  400},
+    {6,  500},
+    {14, 600}
+});
+
+tree.insert(4, 700);
+tree.remove(3);
+
+if (int* value = tree.find(6))
+    std::cout << "Found: " << *value << std::endl;
+
+std::cout << "Min key: " << tree.min() << std::endl;
+std::cout << "Max key: " << tree.max() << std::endl;
+
+std::cout << "Tree size: " << tree.size() << std::endl;
+
+tree.printTree();
+```
